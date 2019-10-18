@@ -48,52 +48,71 @@ async function getBaseCurrency(input) {
 	let response = await fetch('https://api.exchangeratesapi.io/latest?base=' + input);
 	console.log('BASE CURRENCY REQUEST FINISHED');
 	let responseBody = await response.json();
-	let optionList = postListValue.querySelectorAll('p');
+	let optionList = postListValue.querySelectorAll('li');
 	for (let option of optionList) {
 		option.remove();
 	}
-
-	let stringifyObject = responseBody;
-	let stringifyResponseBody = JSON.stringify(stringifyObject);
-	for (let orderedResult of sortCurrencys(splitStringify(stringifyResponseBody, input))) {
-		let newP = document.createElement('p');
-		postListValue.appendChild(newP);
-		newP.innerHTML = orderedResult;
+	console.log(Object.entries(responseBody.rates));
+	let exchangeRateArray = [];
+	for (let rate of Object.entries(responseBody.rates)) {
+		console.log(rate[0] + ' : ' + rate[1]);
+		let exchangeRate = rate[0] + ' : ' + rate[1];
+		exchangeRateArray.push(exchangeRate);
 	}
+	console.log('Exchangerate: ' + exchangeRateArray);
+	let removedBase = removeBaseCurrency(exchangeRateArray, input);
+	console.log('Rem : ' + removedBase);
+	let sortedExchange = sortCurrencys(removedBase);
+	console.log(sortedExchange);
+
+	for (let basedAndSorted of sortedExchange) {
+		let newListElement = document.createElement('li');
+		postListValue.appendChild(newListElement);
+		newListElement.innerHTML = basedAndSorted;
+	}
+
+	// let newP = document.createElement('p');
+	// postListValue.appendChild(newP);
+	// newP.innerHTML = exchangerate;
+
+	// let stringifyObject = responseBody;
+	// let stringifyResponseBody = JSON.stringify(stringifyObject);
+	// for (let orderedResult of sortCurrencys(splitStringify(stringifyResponseBody, input))) {
+	// 	let newP = document.createElement('p');
+	// 	postListValue.appendChild(newP);
+	// 	newP.innerHTML = orderedResult;
+	// }
 }
 
-function splitStringify(string, input) {
-	let arr = [];
-	let delim = ',';
-	let temp = '';
-	let i = 0;
+// function splitStringify(string, input) {
+// 	let arr = [];
+// 	let delim = ',';
+// 	let temp = '';
+// 	let i = 0;
 
-	let quotationRemove = string.replace(/" /g, ' ');
-	let quotationRemove2 = quotationRemove.replace(/"/g, ' ');
-	let quotationRemove3 = quotationRemove2.replace(/ :/g, ' : ');
-	let curlyBracketsRemove = quotationRemove3.replace(/}/g, ' ');
-	let replacedString = curlyBracketsRemove.replace(/{ rates : {/g, '');
+// 	let quotationRemove = string.replace(/" /g, ' ');
+// 	let quotationRemove2 = quotationRemove.replace(/"/g, ' ');
+// 	let quotationRemove3 = quotationRemove2.replace(/ :/g, ' : ');
+// 	let curlyBracketsRemove = quotationRemove3.replace(/}/g, ' ');
+// 	let replacedString = curlyBracketsRemove.replace(/{ rates : {/g, '');
 
-	for (i; i < replacedString.length - 34; i++) {
-		if (replacedString[i] != delim) {
-			temp += replacedString[i];
-		} else {
-			arr.push(temp);
-			temp = '';
-		}
-	}
-	let sortedAndBaseRemoved = removeBaseCurrency(arr, input);
+// 	for (i; i < replacedString.length - 34; i++) {
+// 		if (replacedString[i] != delim) {
+// 			temp += replacedString[i];
+// 		} else {
+// 			arr.push(temp);
+// 			temp = '';
+// 		}
+// 	}
+// 	let sortedAndBaseRemoved = removeBaseCurrency(arr, input);
 
-	return sortedAndBaseRemoved;
-}
+// 	return sortedAndBaseRemoved;
+// }
 
 function removeBaseCurrency(array, base) {
 	let arrayWithoutBase = [];
-
-	let baseWithSpace = ' ' + base;
-
 	for (currency of array) {
-		if (!currency.startsWith(baseWithSpace)) {
+		if (!currency.startsWith(base)) {
 			arrayWithoutBase.push(currency);
 		}
 	}

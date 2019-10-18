@@ -107,15 +107,16 @@ body,
 	display: none;
 }
 
-.right p {
+.right li {
 	align-self: flex-start;
 	background: rgba(203, 225, 255, 0.9);
 	width: 100%;
 	padding: 0.5rem;
 	font-weight: bold;
+	list-style: none;
 }
 
-.right p:nth-child(2n) {
+.right li:nth-child(2n) {
 	background: rgba(77, 85, 97, 0.5);
 	color: rgb(88, 221, 175);
 }
