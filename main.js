@@ -17,32 +17,39 @@ let submitButton = document.querySelector('.exchangeButton');
 let postListValue = document.querySelector('.right');
 let selectPlace = document.querySelector('.currency');
 let chosenCurrencyPlace = document.querySelector('.output');
+let comparisonPlace = document.querySelector('.comparison');
 
-function getOption() {
-	selectElement = document.querySelector('.currency');
-	let output = selectElement.options[selectElement.selectedIndex];
-	getCurrencyName(output.innerHTML);
-	let chosenCurrency = output.innerHTML;
-	getBaseCurrency(chosenCurrency);
+function fillSecondOptionList(array) {
+	let abbreviation = [];
+	for (let element of array) {
+		let otherOption = document.createElement('option');
+		comparisonPlace.appendChild(otherOption);
+		otherOption.innerHTML = threeFirstLetters(element);
+
+		console.log('Här är elementen: ' + element);
+		abbreviation.push(threeFirstLetters(element));
+	}
+	console.log('Abbreviation ' + abbreviation + 'med längd: ' + abbreviation.length);
 }
 
-async function getCurrencyName(chosenInnerHTML) {
-	console.log('MAKING NAME REQUEST');
-	let response = await fetch('https://openexchangerates.org/api/currencies.json');
-	console.log('NAME REQUEST FINISHED');
-	let responseBody = await response.json();
-	let currencyName = '';
-	for (currencyShortenings of Object.keys(responseBody)) {
-		console.log(currencyShortenings);
-		if (currencyShortenings.startsWith(chosenInnerHTML)) {
-			currencyName = responseBody[currencyShortenings];
-			break;
+function threeFirstLetters(input) {
+	let threeFirstLetters = '';
+
+	for (let i = 0; i < 3; i++) {
+		threeFirstLetters += input[i];
+	}
+	return threeFirstLetters;
+}
+
+function removeBaseCurrency(array, base) {
+	let arrayWithoutBase = [];
+	for (currency of array) {
+		if (!currency.startsWith(base)) {
+			arrayWithoutBase.push(currency);
 		}
 	}
-	chosenCurrencyPlace.innerHTML = 'Exchange rates per ' + chosenInnerHTML + ', ' + currencyName + ':';
-	return currencyName;
+	return arrayWithoutBase;
 }
-
 async function getBaseCurrency(input) {
 	console.log('MAKING BASE CURRENCY REQUEST');
 	let response = await fetch('https://api.exchangeratesapi.io/latest?base=' + input);
@@ -69,54 +76,34 @@ async function getBaseCurrency(input) {
 		let newListElement = document.createElement('li');
 		postListValue.appendChild(newListElement);
 		newListElement.innerHTML = basedAndSorted;
+		newListElement.className = threeFirstLetters(basedAndSorted);
 	}
-
-	// let newP = document.createElement('p');
-	// postListValue.appendChild(newP);
-	// newP.innerHTML = exchangerate;
-
-	// let stringifyObject = responseBody;
-	// let stringifyResponseBody = JSON.stringify(stringifyObject);
-	// for (let orderedResult of sortCurrencys(splitStringify(stringifyResponseBody, input))) {
-	// 	let newP = document.createElement('p');
-	// 	postListValue.appendChild(newP);
-	// 	newP.innerHTML = orderedResult;
-	// }
+	fillSecondOptionList(sortedExchange);
 }
 
-// function splitStringify(string, input) {
-// 	let arr = [];
-// 	let delim = ',';
-// 	let temp = '';
-// 	let i = 0;
-
-// 	let quotationRemove = string.replace(/" /g, ' ');
-// 	let quotationRemove2 = quotationRemove.replace(/"/g, ' ');
-// 	let quotationRemove3 = quotationRemove2.replace(/ :/g, ' : ');
-// 	let curlyBracketsRemove = quotationRemove3.replace(/}/g, ' ');
-// 	let replacedString = curlyBracketsRemove.replace(/{ rates : {/g, '');
-
-// 	for (i; i < replacedString.length - 34; i++) {
-// 		if (replacedString[i] != delim) {
-// 			temp += replacedString[i];
-// 		} else {
-// 			arr.push(temp);
-// 			temp = '';
-// 		}
-// 	}
-// 	let sortedAndBaseRemoved = removeBaseCurrency(arr, input);
-
-// 	return sortedAndBaseRemoved;
-// }
-
-function removeBaseCurrency(array, base) {
-	let arrayWithoutBase = [];
-	for (currency of array) {
-		if (!currency.startsWith(base)) {
-			arrayWithoutBase.push(currency);
+async function getCurrencyName(chosenInnerHTML) {
+	console.log('MAKING NAME REQUEST');
+	let response = await fetch('https://openexchangerates.org/api/currencies.json');
+	console.log('NAME REQUEST FINISHED');
+	let responseBody = await response.json();
+	let currencyName = '';
+	for (currencyShortenings of Object.keys(responseBody)) {
+		console.log(currencyShortenings);
+		if (currencyShortenings.startsWith(chosenInnerHTML)) {
+			currencyName = responseBody[currencyShortenings];
+			break;
 		}
 	}
-	return arrayWithoutBase;
+	chosenCurrencyPlace.innerHTML = 'Exchange rates per ' + chosenInnerHTML + ', ' + currencyName + ':';
+	return currencyName;
+}
+
+function getOption() {
+	selectElement = document.querySelector('.currency');
+	let output = selectElement.options[selectElement.selectedIndex];
+	getCurrencyName(output.innerHTML);
+	let chosenCurrency = output.innerHTML;
+	getBaseCurrency(chosenCurrency);
 }
 
 function sortCurrencys(unsortedKeys) {
